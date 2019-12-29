@@ -19,8 +19,8 @@ class TwitterAuth:
         
         # make concatKeys
         self.concatenatedKey = base64.urlsafe_b64encode('{}:{}'.format(\
-            self.secrets['key'], self.secrets['secret']).encode('ascii')\
-            .decode('ascii'))
+            self.secrets['key'], self.secrets['secret']).encode('ascii'))\
+            .decode('ascii')
 
         # make request header
         auth_header = {\
@@ -34,8 +34,8 @@ class TwitterAuth:
         if request.status_code != 200:
             print(request.status_code)
         else:
-            print(request.json()['data'])
-            self.existingToken = request.json()['data']
+            print(request.json())
+            self.existingToken = request.json()
             return self.existingToken
 
 def readYaml():
