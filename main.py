@@ -51,36 +51,37 @@ def makePostAuthHeaders(token):
 def makeOAuthHeaders():
     return {'Authorization': 'OAuth oauth_consumer_key={}, oauth_token={}, oauth_token_secret={}, oauth_version="1.0'}
 
-DO_THIS = False
+if __name__ == '__main__':
+    DO_THIS = False
 
-session_token = {'token_type': 'bearer', 'access_token': 'AAAAAAAAAAAAAAAAAAAAAL5FBAEAAAAAqoth5%2B6cM2dCT78zx%2BAJWAfPI%2FA%3DesoJlBaxUcW0bnSdOGjyG8dcZZOKf6dC4qWEAyYJvYIPylWGl5'}
+    session_token = {'token_type': 'bearer', 'access_token': 'AAAAAAAAAAAAAAAAAAAAAL5FBAEAAAAAqoth5%2B6cM2dCT78zx%2BAJWAfPI%2FA%3DesoJlBaxUcW0bnSdOGjyG8dcZZOKf6dC4qWEAyYJvYIPylWGl5'}
 
-config = readYaml()
-data = 'grant_type=client_credentials'
-concat_keys = base64.urlsafe_b64encode('{}:{}'.format(config['consumer_key'], config['consumer_secret']).encode('ascii')).decode('ascii')
+    config = readYaml()
+    data = 'grant_type=client_credentials'
+    concat_keys = base64.urlsafe_b64encode('{}:{}'.format(config['consumer_key'], config['consumer_secret']).encode('ascii')).decode('ascii')
 
-if session_token == None:
-    request = requests.post(config['token_url'], headers=makeHeaders(concat_keys), data=data)
-    print(request.json())
+    if session_token == None:
+        request = requests.post(config['token_url'], headers=makeHeaders(concat_keys), data=data)
+        print(request.json())
 
-#if DO_THIS:
-    # get basic information for my twitter account
-params = { 'usernames': 'roggmatz'}
-userRequest = requests.get(\
-    config['users_url'],\
-    headers={'Authorization': 'Bearer {}'.format(session_token['access_token'])},\
-    params=params\
-).json()['data']
+    #if DO_THIS:
+        # get basic information for my twitter account
+    params = { 'usernames': 'roggmatz'}
+    userRequest = requests.get(\
+        config['users_url'],\
+        headers={'Authorization': 'Bearer {}'.format(session_token['access_token'])},\
+        params=params\
+    ).json()['data']
 
-if DO_THIS:
-    # get most recent tweet from basic user info
-    twitter_id = userRequest[0]['most_recent_tweet_id']
-    tweetsRequest = requests.get(config['tweets_url'],\
+    if DO_THIS:
+        # get most recent tweet from basic user info
+        twitter_id = userRequest[0]['most_recent_tweet_id']
+        tweetsRequest = requests.get(config['tweets_url'],\
+            headers=makePostAuthHeaders(session_token),\
+            params={'ids': twitter_id})
+
+    # get user timeline tweets
+    allTweetsRequest = requests.get(config['timeline_url'],\
         headers=makePostAuthHeaders(session_token),\
-        params={'ids': twitter_id})
-
-# get user timeline tweets
-allTweetsRequest = requests.get(config['timeline_url'],\
-    headers=makePostAuthHeaders(session_token),\
-    params={'user_id': userRequest[0]['id'], 'count': 3})
+        params={'user_id': userRequest[0]['id'], 'count': 3})
 
