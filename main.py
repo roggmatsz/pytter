@@ -5,6 +5,27 @@ import base64
 # bearer / application only auth is used to access read-only data
 # oauth 1.0a is needed to do POST-ey stuff
 
+class TwitterService(object):
+    def __init__(self, baseUrl, bearerToken):
+        self.baseUrl = baseUrl
+        self.httpHeader = {\
+            'Authorization': 'Bearer {}'.format(bearerToken['access_token'])\
+        }
+
+    def getUserInfo(self, username='roggmatz', endpoint=''):
+        userParams = {'usernames': username}
+        request = requests.get(\
+            self.baseUrl + '/users',\
+            headers=self.httpHeader,\
+            params=userParams)
+        if request.status_code != 200:
+            print(request.status_code)
+            raise Exception('Something went wrong in the User request.')
+        else:
+            print(request.json())
+        
+        return request.json()
+
 def readYaml():
     with open('config.yaml') as f:
         return yaml.safe_load(f)
@@ -17,7 +38,7 @@ def makePostAuthHeaders(token):
 
 def makeOAuthHeaders():
     return {'Authorization': 'OAuth oauth_consumer_key={}, oauth_token={}, oauth_token_secret={}, oauth_version="1.0'}
-
+'''
 if __name__ == '__main__':
     DO_THIS = False
 
@@ -52,3 +73,4 @@ if __name__ == '__main__':
         headers=makePostAuthHeaders(session_token),\
         params={'user_id': userRequest[0]['id'], 'count': 3})
 
+'''
