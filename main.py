@@ -1,6 +1,7 @@
 import yaml
 import requests
 import base64
+from sys import argv
 
 # bearer / application only auth is used to access read-only data
 # oauth 1.0a is needed to do POST-ey stuff
@@ -8,7 +9,7 @@ import base64
 class TwitterService(object):
     def __init__(self, baseUrl, bearerToken):
         self.baseUrl = baseUrl
-        self.httpHeader = {\
+        self.authorizationHeader = {\
             'Authorization': 'Bearer {}'.format(bearerToken['access_token'])\
         }
 
@@ -16,14 +17,32 @@ class TwitterService(object):
         userParams = {'usernames': username}
         request = requests.get(\
             self.baseUrl + '/users',\
-            headers=self.httpHeader,\
+            headers=self.authorizationHeader,\
             params=userParams)
+
+        # TODO: Factor out validation block into separate function
         if request.status_code != 200:
             print(request.status_code)
             raise Exception('Something went wrong in the User request.')
         else:
             print(request.json())
         
+        return request.json()[0]
+
+    def getTweet(self, tweetId):
+        params = {'ids': tweetId}
+        request = requests.get(\
+            self.baseUrl + '/tweets',\
+            headers=self.authorizationHeader,\
+            params=params)
+        
+        # TODO: Factor out validation block into separate function
+        if request.status_code != 200:
+            print(request.status_code)
+            raise Exception('Something went wrong in the User request.')
+        else:
+            print(request.json())
+
         return request.json()
 
 def readYaml():
@@ -38,6 +57,7 @@ def makePostAuthHeaders(token):
 
 def makeOAuthHeaders():
     return {'Authorization': 'OAuth oauth_consumer_key={}, oauth_token={}, oauth_token_secret={}, oauth_version="1.0'}
+
 '''
 if __name__ == '__main__':
     DO_THIS = False
